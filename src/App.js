@@ -196,7 +196,7 @@ class App extends Component {
       active: []
     })
 
-    this.timer(1);
+    this.timer(0);
   }
 
   componentWillMount() {
