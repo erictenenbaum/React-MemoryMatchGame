@@ -9,7 +9,6 @@ import data from "./data.json";
 
 class App extends Component {
 
-
   constructor(props){
     super(props);
 
@@ -25,8 +24,15 @@ class App extends Component {
 
   timeVar;
 
-  handleClick = (id, number) => {   
-    let clickObj = {id, number};
+  handleClick = (id, number, position) => { 
+    if(this.state.active.length == 2){
+      return;
+    }
+
+    let positionArray = position.split(".");
+    let outter = Number.parseInt(positionArray[0]);
+    let inner = Number.parseInt(positionArray[1]);  
+    let clickObj = {id, number, outter, inner};
     let tempActiveArr = this.copy(this.state.active);
 
     if(tempActiveArr.length < 3){
@@ -34,65 +40,55 @@ class App extends Component {
 
       if(tempActiveArr.length == 2){
         if(tempActiveArr[0].number == tempActiveArr[1].number){
+
           console.log("match");
-          return this.match(id);
+          return this.match(outter, inner);
+
         }else {
+
           console.log("different");         
           setTimeout(() => {
             return this.noMatch();
-          }, 500)
+          }, 500);
           
         }
       } 
-
-      return this.activate(id);  
+      return this.activate(outter, inner);  
     }      
   }
 
   noMatch(){
-    let tempArray = this.copy(this.state.data);  
-    for(let i = 0; i < tempArray.length; i++){
-      for(let j = 0; j < tempArray[i].length; j++){
-        if(tempArray[i][j].id == this.state.active[0].id || tempArray[i][j].id == this.state.active[1].id){
-          tempArray[i][j].active = false;
-        }
-      }
-    }
+    let tempArray = this.copy(this.state.data);
+    let tempActiveArr = this.copy(this.state.active);   
+
+    tempArray[tempActiveArr[0].outter][tempActiveArr[0].inner].active = false;
+    tempArray[tempActiveArr[1].outter][tempActiveArr[1].inner].active = false;    
 
     this.setState({
       active: [],
       data: tempArray
-    })
+    });
   }
 
-  match(id){
-    this.activate(id);
+  match(outter, inner){
+    this.activate(outter, inner);
     let tempRevealed = this.state.revealed.slice();
 
     tempRevealed.push(this.state.active[0].id);
-    tempRevealed.push(this.state.active[1].id);
-
-    
+    tempRevealed.push(this.state.active[1].id);    
 
     if(tempRevealed.length == data.length - 1){
       return this.youWin();
     }
-    
-
 
     this.setState({
       active: [],
       revealed: tempRevealed
-    })
-
-    
-
+    });
   }
 
-
-
-  youWin(){
-    alert("you win! it took you " + this.state.timer + " seconds");
+  youWin(){  
+    alert("you win! it took you " + this.state.timer + " seconds");    
     let currentTime = this.state.timer;
     let currentFastest = this.state.fastTime;
     let fastTime;
@@ -131,16 +127,11 @@ class App extends Component {
     }, 1000);
   }
 
-  activate(id){
+  
+  
+  activate(outter, inner){
     let tempArray = this.copy(this.state.data);
-    for(let i = 0; i < tempArray.length; i++){
-      for(let j = 0; j < tempArray[i].length; j++){
-        if(tempArray[i][j].id == id){
-          tempArray[i][j].active = true;         
-          break;
-        }
-      }
-    }
+    tempArray[outter][inner].active = true;
 
     this.setState({
       data: tempArray     
@@ -157,12 +148,18 @@ class App extends Component {
 
     let formattedArray = [];
     let tempMiniArray = [];
+    let outterArrayNum = 0;
+    let innerArrayNum = 0;
 
     tempArray.forEach(item => {
+      item.position = outterArrayNum + "." + innerArrayNum;
       tempMiniArray.push(item);
+      innerArrayNum++;
       if (tempMiniArray.length == 3) {
         formattedArray.push(tempMiniArray);
         tempMiniArray = [];
+        outterArrayNum++;
+        innerArrayNum = 0;
       }
     });
     
@@ -207,8 +204,7 @@ class App extends Component {
   } 
 
 
-
-  render() {
+  render() {   
     if(this.state.data.length < 1){
       return (
         <div className="App">
@@ -223,13 +219,13 @@ class App extends Component {
               return (
                 <div className="row">
                 <div className="col-xs-4 nopadding">
-                  <Square data={this.state.data} handleClick={this.handleClick} number={arr[0].number} key={arr[0].id} id={arr[0].id} active={arr[0].active} />
+                  <Square data={this.state.data} handleClick={this.handleClick} number={arr[0].number} key={arr[0].id} id={arr[0].id} active={arr[0].active} position={arr[0].position} />
                 </div>
                 <div className="col-xs-4 nopadding">
-                  <Square data={this.state.data} handleClick={this.handleClick} number={arr[1].number} key={arr[1].id} id={arr[1].id} active={arr[1].active} />
+                  <Square data={this.state.data} handleClick={this.handleClick} number={arr[1].number} key={arr[1].id} id={arr[1].id} active={arr[1].active} position={arr[1].position} />
                 </div>
                 <div className="col-xs-4 nopadding">
-                  <Square data={this.state.data} handleClick={this.handleClick} number={arr[2].number} key={arr[2].id} id={arr[2].id} active={arr[2].active} />
+                  <Square data={this.state.data} handleClick={this.handleClick} number={arr[2].number} key={arr[2].id} id={arr[2].id} active={arr[2].active} position={arr[2].position} />
                 </div>
               </div>
               );

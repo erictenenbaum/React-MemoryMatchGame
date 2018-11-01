@@ -13,7 +13,7 @@ const Square = props => {
         )
     }
     return (
-        <div className="square" onClick={()=> {props.handleClick(props.id, props.number)}}>
+        <div className="square" onClick={()=> {props.handleClick(props.id, props.number, props.position)}}>
             
         </div>
     );
